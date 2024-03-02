@@ -3,6 +3,7 @@ package main
 import (
 	"booking-app/helper"
 	"fmt"
+	"time"
 )
 
 // todo: struct
@@ -19,6 +20,9 @@ import (
 	var bookings = make([]UserDataStructure, 0)
 	const conferenceTickets uint = 50
 	var remainingTicket int= 50
+
+// if the app is not wrapped inside for loop, use sync.wait
+	// var wg = sync.WaitGroup{}
 
 
 
@@ -71,8 +75,14 @@ import (
 			// bookings[0] = firstName + " " + lastName
 			// todo: using slice
 	
-				bookTicket(remainingTicket, userTickets, firstName, lastName, name, email)
-			    sendTicket(userTickets, firstName, lastName,  email)
+				bookTicket( userTickets, firstName, lastName, name, email)
+				// wg.Add(1)
+				// todo adding GO infront of a function is called  multiThreading(avoids blocking) or new thread
+				// todo: adding GO infront of function call generates a new thread to avoid code blocking while running go code
+				// todo: when we create a thread, go creates GREEN Thread
+				// todo: Creating hight level go routine
+				// todo: Thread is cheaper to create, it's light weight, which means you can use thousands of thread without affecting the system
+			    go sendTicket(userTickets, firstName, lastName,  email)
 			 firstNames := getUserFirstName()
 
 			fmt.Printf("The first names of all our bookings are : %v\n", firstNames)
@@ -80,6 +90,7 @@ import (
 			if remainingTicket == 0{
 				// todo: quit the app
 				fmt.Println("Our conference is booked-out.Come back next year")
+				sendTicket(userTickets, firstName, lastName,  email)
 				break
 			}
         
@@ -90,6 +101,7 @@ import (
 				// todo: continue specifies that the loop should go again if the first one fail
 				// continue
 		}
+		//  wg.Wait()
 	
 	}
 
@@ -110,7 +122,7 @@ import (
 
 
 
-	func bookTicket( remainingTicket int, userTickets int, firstName string, lastName string, name string, email string) {
+	func bookTicket(  userTickets int, firstName string, lastName string, name string, email string) {
 
 
 		// todo: create a map for a user. maps can only have same data-types for keys and same data types for values
@@ -137,7 +149,9 @@ import (
 
 
 		fmt.Printf("Thank you %v %v for booking %v tickets. You will receive a confirmation email at %v.\n",firstName, lastName, userTickets, email)
-		fmt.Printf("%v tickets remaining for %v \n", remainingTicket, name)
+		if userTickets > 0 {
+			fmt.Printf("%v tickets remaining for %v \n", remainingTicket, name)
+		}
 
 	}
 
@@ -157,9 +171,11 @@ import (
 
 
 	func sendTicket(userTickets int, firstName string, lastName string, email string){
+		// todo sleep stops the thread from execusion for specified time limit, here, 10 second
+		time.Sleep(10 * time.Second) 
 		var ticket = fmt.Sprintf("%v tickets to %v %v", userTickets, firstName, lastName)
 		fmt.Println("################################################")
 		fmt.Printf("Sending : \n %v to email address %v.\n", ticket, email)
 		fmt.Println("################################################")
-
+        // wg.Done()
 	}
